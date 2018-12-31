@@ -4,7 +4,7 @@ UART bootloader for STM32 microcontroller.
 ### Table of content
 - [Introduction](#introduction)
 - [How it works](#how-it-works)
-  - [Overall](#Overall)
+  - [Overall](#overall)
   - [Memory map](#memory-map)
   - [Code](#code)
 - [How to use it](#how-to-use-it)
@@ -26,7 +26,7 @@ Main features:
 #### Overall
 The bootloader was developed for STM32VLDISCOVERY board, the only extra thing needed is an USB-UART module on PA10 (RX) and PA9 (TX) pins.
 
-<img src="https://raw.githubusercontent.com/ferenc-nemeth/stm32-bootloader/master/Design/pinout.PNG" > <br>
+<img src="https://raw.githubusercontent.com/ferenc-nemeth/stm32-bootloader/master/Design/stm32f100-pinout.png" > <br>
 *Figure 1. Pinout of the system.*
 
 After start-up, the system sends a welcome message through UART and checks if the user button is pressed. If it is pressed, then it stays in booatloader mode, turns on the green (PC9) LED and waits for a new binary file. If the button isn't pressed, then it jumps to the user application.
@@ -59,6 +59,11 @@ And the vector table offset in system_stm32f1xx.c
 ```
 #define VECT_TAB_OFFSET  0x00008000U
 ```
+Last step is, you have to generate a \*.bin file. If you use ARM GCC:
+```
+arm-atollic-eabi-objcopy -O binary "input.elf" "output.bin"
+```
+
 #### PC
 To update the firmware, you need a terminal software, that supports Xmodem. I recommend PuTTY[4] or Tera Term[5].
 
@@ -68,13 +73,13 @@ Configure them in the following way:
 - Parity: none
 - Stop bits: 1
 
-In PuTTY: *Files Transfer* >> *Xmodem* (or *Xmodem-1K*) and then select the binary file.
+In PuTTY: select *Files Transfer* >> *Xmodem* (or *Xmodem 1K*) >> *Send* and then open the binary file.
 
-<img src="https://raw.githubusercontent.com/ferenc-nemeth/stm32-bootloader/master/Design/putty.PNG" > <br>
+<img src="https://raw.githubusercontent.com/ferenc-nemeth/stm32-bootloader/master/Design/terminal-putty.png" > <br>
 *Figure 4. PuTTY.*
 
-In Tera Term: *File* >> *Transfer* >> *Xmodem* >> *Send* and then select the binary file.
-<img src="https://raw.githubusercontent.com/ferenc-nemeth/stm32-bootloader/master/Design/teraterm.PNG" > <br>
+In Tera Term: select *File* >> *Transfer* >> *Xmodem* >> *Send* and then open the binary file.
+<img src="https://raw.githubusercontent.com/ferenc-nemeth/stm32-bootloader/master/Design/terminal-teraterm.png" > <br>
 *Figure 5. Tera Term.*
 
 In case everything was fine, then the output should be the same:
