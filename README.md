@@ -14,7 +14,7 @@ UART bootloader for STM32 microcontroller.
 - [References](#references)
 
 ### Introduction
-A bootloader for STM32F100 (STM32VLDISCOVERY board)[[1]](#references) with UART and Xmodem protocol [[2][3]](#references).
+A bootloader for STM32F100 (STM32VLDISCOVERY board) [[1]](#references) with UART and Xmodem protocol [[2]](#references)[[3]](#references).
 The software is created with Atollic trueSTUDIO and the drivers are generated with CubeMX.
 
 Main features:
@@ -34,7 +34,7 @@ After start-up, the system sends a welcome message through UART and checks if th
 <img src="https://raw.githubusercontent.com/ferenc-nemeth/stm32-bootloader/master/Design/bootloader.png" > <br>
 *Figure 2. Brief overview of the workflow of the system.*
 
-The Xmodem protocol is clearly explained in the [references](#references), there is nothing extra I can add to it.
+The Xmodem protocol is clearly explained in the [references](#references).
 
 #### Memory map
 The bootloader starts from 0x08000000 and the user application starts from 0x08008000.
@@ -59,13 +59,13 @@ And the vector table offset in system_stm32f1xx.c
 ```
 #define VECT_TAB_OFFSET  0x00008000U
 ```
-Last step is, you have to generate a \*.bin file. If you use ARM GCC:
+Last step is you have to generate a \*.bin file:
 ```
 arm-atollic-eabi-objcopy -O binary "input.elf" "output.bin"
 ```
 
 #### PC
-To update the firmware, you need a terminal software, that supports Xmodem. I recommend PuTTY[4] or Tera Term[5].
+To update the firmware, you need a terminal software, that supports Xmodem. I recommend PuTTY [[4]](#references) or Tera Term [[5]](#references).
 
 Configure them in the following way:
 - Baud rate: 115200
