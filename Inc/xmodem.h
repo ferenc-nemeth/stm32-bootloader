@@ -15,17 +15,17 @@
 #include "stdbool.h"
 
 /* Xmodem (128 bytes) packet format
- * Byte 0:        Header
- * Byte 1:        Packet number
- * Byte 2:        Packet number complement
- * Byte 3-130:    Data
+ * Byte  0:       Header
+ * Byte  1:       Packet number
+ * Byte  2:       Packet number complement
+ * Bytes 3-130:   Data
  * Bytes 131-132: CRC
  */
 
 /* Xmodem (1024 bytes) packet format
- * Byte 0:          Header
- * Byte 1:          Packet number
- * Byte 2:          Packet number complement
+ * Byte  0:         Header
+ * Byte  1:         Packet number
+ * Byte  2:         Packet number complement
  * Bytes 3-1026:    Data
  * Bytes 1027-1028: CRC
  */
