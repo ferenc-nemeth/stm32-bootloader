@@ -11,7 +11,6 @@
 
 /* Function pointer for jumping to user application. */
 typedef void (*fnc_ptr)(void);
-fnc_ptr jump_to_app;
 
 /**
  * @brief   This function erases the memory.
@@ -56,26 +55,29 @@ flash_status flash_write(uint32_t address, uint32_t *data, uint32_t length)
   HAL_FLASH_Unlock();
 
   /* Loop through the array. */
-  for (uint32_t i = 0u; (i < length) && (FLASH_OK == status); ++i)
+  for (uint32_t i = 0u; (i < length) && (FLASH_OK == status); i++)
   {
-    /* If we reached the end of the memory, then report an error.*/
+    /* If we reached the end of the memory, then report an error and don't anything else.*/
     if (FLASH_BANK1_END == address)
     {
       status |= FLASH_ERROR_SIZE;
     }
-    /* The actual flashing. If there is an error, then report it. */
-    if (HAL_OK != HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *(volatile uint32_t*)(data+i)))
+    else
     {
-      status |= FLASH_ERROR_WRITE;
-    }
-    /* Read back the content of the memory. If it is wrong, then report an error. */
-    if ((*(volatile uint32_t*)(data+i)) != (*(volatile uint32_t*)address))
-    {
-      status |= FLASH_ERROR_READBACK;
-    }
+      /* The actual flashing. If there is an error, then report it. */
+      if (HAL_OK != HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, data[i]))
+      {
+        status |= FLASH_ERROR_WRITE;
+      }
+      /* Read back the content of the memory. If it is wrong, then report an error. */
+      if (((data[i])) != (*(volatile uint32_t*)address))
+      {
+        status |= FLASH_ERROR_READBACK;
+      }
 
-    /* Shift the address by a word. */
-    address += 4u;
+      /* Shift the address by a word. */
+      address += 4u;
+    }
   }
 
   HAL_FLASH_Lock();
@@ -91,6 +93,7 @@ flash_status flash_write(uint32_t address, uint32_t *data, uint32_t length)
 void flash_jump_to_app(void)
 {
   /* Function pointer to the address of the user application. */
+  fnc_ptr jump_to_app;
   jump_to_app = (fnc_ptr)(*(volatile uint32_t*) (FLASH_APP_START_ADDRESS+4u));
   HAL_DeInit();
   /* Change the main stack pointer. */

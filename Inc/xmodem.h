@@ -14,18 +14,34 @@
 #include "flash.h"
 #include "stdbool.h"
 
+/* Xmodem (128 bytes) packet format
+ * Byte 0:        Header
+ * Byte 1:        Packet number
+ * Byte 2:        Packet number complement
+ * Byte 3-130:    Data
+ * Bytes 131-132: CRC
+ */
+
+/* Xmodem (1024 bytes) packet format
+ * Byte 0:          Header
+ * Byte 1:          Packet number
+ * Byte 2:          Packet number complement
+ * Bytes 3-1026:    Data
+ * Bytes 1027-1028: CRC
+ */
+
 /* Maximum allowed errors (user defined). */
 #define X_MAX_ERRORS ((uint8_t)1u)
 
 /* Sizes of the packets. */
-#define X_PACKET_128_SIZE ((uint16_t)128u)
-#define X_PACKET_1K_SIZE  ((uint16_t)1024u)
-#define X_PACKET_CRC_SIZE ((uint16_t)2u)
+#define X_PACKET_128_SIZE   ((uint16_t)128u)
+#define X_PACKET_1024_SIZE  ((uint16_t)1024u)
+#define X_PACKET_CRC_SIZE   ((uint16_t)2u)
 
-/* Relative location of the packets. */
-#define X_PACKET_NUMBER_INDEX     ((uint16_t)0u)
-#define X_PACKET_NUMBER_C_INDEX   ((uint16_t)1u)
-#define X_PACKET_DATA_INDEX       ((uint16_t)2u)
+/* Relative (not counting the header) location of the packets. */
+#define X_PACKET_NUMBER_INDEX             ((uint16_t)0u)
+#define X_PACKET_NUMBER_COMPLEMENT_INDEX  ((uint16_t)1u)
+#define X_PACKET_DATA_INDEX               ((uint16_t)2u)
 
 /* Bytes defined by the protocol. */
 #define X_SOH ((uint8_t)0x01u)  /**< Start Of Header (128 bytes). */
