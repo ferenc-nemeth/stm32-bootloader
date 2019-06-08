@@ -85,12 +85,12 @@ In Tera Term: select *File* >> *Transfer* >> *Xmodem* >> *Send* and then open th
 In case everything was fine, then the output should be the same:
 ```
 ================================
-     UART Bootloader V1.0.0
+UART Bootloader
 https://github.com/ferenc-nemeth
 ================================
 
 Please send a new binary file with Xmodem protocol to update the firmware.
-CCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCC
 Firmware updated!
 Jumping to user application...
 ```
