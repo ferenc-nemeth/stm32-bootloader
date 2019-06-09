@@ -31,7 +31,7 @@
  */
 
 /* Maximum allowed errors (user defined). */
-#define X_MAX_ERRORS ((uint8_t)1u)
+#define X_MAX_ERRORS ((uint8_t)3u)
 
 /* Sizes of the packets. */
 #define X_PACKET_128_SIZE   ((uint16_t)128u)
