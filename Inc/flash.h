@@ -12,8 +12,9 @@
 
 #include "stm32f1xx_hal.h"
 
-/* Starting address of the user application. */
+/* Start and end addresses of the user application. */
 #define FLASH_APP_START_ADDRESS ((uint32_t)0x08008000u)
+#define FLASH_APP_END_ADDRESS   ((uint32_t)FLASH_BANK1_END-0x10u) /**< Leave a little extra space at the end. */
 
 /* Status report for the functions. */
 typedef enum {

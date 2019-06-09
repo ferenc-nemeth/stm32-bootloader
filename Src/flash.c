@@ -57,8 +57,8 @@ flash_status flash_write(uint32_t address, uint32_t *data, uint32_t length)
   /* Loop through the array. */
   for (uint32_t i = 0u; (i < length) && (FLASH_OK == status); i++)
   {
-    /* If we reached the end of the memory, then report an error and don't anything else.*/
-    if (FLASH_BANK1_END == address)
+    /* If we reached the end of the memory, then report an error and don't do anything else.*/
+    if (FLASH_APP_END_ADDRESS <= address)
     {
       status |= FLASH_ERROR_SIZE;
     }
