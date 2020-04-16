@@ -142,6 +142,13 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
 {
   xmodem_status status = X_OK;
   uint16_t size = 0u;
+
+  /* 2 bytes for packet number, 1024 for data, 2 for CRC*/
+  uint8_t received_packet_number[X_PACKET_NUMBER_SIZE];
+  uint8_t received_packet_data[X_PACKET_1024_SIZE];
+  uint8_t received_packet_crc[X_PACKET_CRC_SIZE];
+
+  /* Get the size of the data. */
   if (X_SOH == header)
   {
     size = X_PACKET_128_SIZE;
@@ -152,21 +159,28 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
   }
   else
   {
-    /* Wrong header type. */
-    status = X_ERROR;
+    /* Wrong header type. This shoudn't be possible... */
+    status |= X_ERROR;
   }
-  uint16_t length = size + X_PACKET_DATA_INDEX + X_PACKET_CRC_SIZE;
-  uint8_t received_data[X_PACKET_1024_SIZE + X_PACKET_DATA_INDEX + X_PACKET_CRC_SIZE];
 
-  /* Get the packet (except for the header) from UART. */
-  uart_status comm_status = uart_receive(&received_data[0u], length);
-  /* The last two bytes are the CRC from the host. */
-  uint16_t crc_received = ((uint16_t)received_data[length-2u] << 8u) | ((uint16_t)received_data[length-1u]);
+  uart_status comm_status = UART_OK;
+  /* Get the packet number, data and CRC from UART. */
+  comm_status |= uart_receive(&received_packet_number[0u], X_PACKET_NUMBER_SIZE);
+  comm_status |= uart_receive(&received_packet_data[0u], size);
+  comm_status |= uart_receive(&received_packet_crc[0u], X_PACKET_CRC_SIZE);
+  /* Merge the two bytes of CRC. */
+  uint16_t crc_received = ((uint16_t)received_packet_crc[X_PACKET_CRC_HIGH_INDEX] << 8u) | ((uint16_t)received_packet_crc[X_PACKET_CRC_LOW_INDEX]);
   /* We calculate it too. */
-  uint16_t crc_calculated = xmodem_calc_crc(&received_data[X_PACKET_DATA_INDEX], size);
+  uint16_t crc_calculated = xmodem_calc_crc(&received_packet_data[0u], size);
+
+  /* Communication error. */
+  if (UART_OK != comm_status)
+  {
+    status |= X_ERROR_UART;
+  }
 
   /* If it is the first packet, then erase the memory. */
-  if (false == x_first_packet_received)
+  if ((X_OK == status) && (false == x_first_packet_received))
   {
     if (FLASH_OK == flash_erase(FLASH_APP_START_ADDRESS))
     {
@@ -181,17 +195,12 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
   /* Error handling and flashing. */
   if (X_OK == status)
   {
-    if (UART_OK != comm_status)
-    {
-      /* UART error. */
-      status |= X_ERROR_UART;
-    }
-    if (xmodem_packet_number != received_data[X_PACKET_NUMBER_INDEX])
+    if (xmodem_packet_number != received_packet_number[0u])
     {
       /* Packet number counter mismatch. */
       status |= X_ERROR_NUMBER;
     }
-    if (255u != (received_data[X_PACKET_NUMBER_INDEX] +  received_data[X_PACKET_NUMBER_COMPLEMENT_INDEX]))
+    if (255u != (received_packet_number[X_PACKET_NUMBER_INDEX] + received_packet_number[X_PACKET_NUMBER_COMPLEMENT_INDEX]))
     {
       /* The sum of the packet number and packet number complement aren't 255. */
       /* The sum always has to be 255. */
@@ -202,15 +211,16 @@ static xmodem_status xmodem_handle_packet(uint8_t header)
       /* The calculated and received CRC are different. */
       status |= X_ERROR_CRC;
     }
-    /* Do the actual flashing. */
-    if (FLASH_OK != flash_write(xmodem_actual_flash_address, (uint32_t*)&received_data[X_PACKET_DATA_INDEX], (uint32_t)size/4u))
+  }
+
+    /* Do the actual flashing (if there weren't any errors). */
+    if ((X_OK == status) && (FLASH_OK != flash_write(xmodem_actual_flash_address, (uint32_t*)&received_packet_data[0u], (uint32_t)size/4u)))
     {
       /* Flashing error. */
       status |= X_ERROR_FLASH;
     }
-  }
 
-  /* Raise the packet number and the address counters (if there wasn't any error). */
+  /* Raise the packet number and the address counters (if there weren't any errors). */
   if (X_OK == status)
   {
     xmodem_packet_number++;
