@@ -1,7 +1,7 @@
 # stm32-bootloader
 UART bootloader for STM32 microcontroller.
 
-### Table of content
+### Table of contents
 - [Introduction](#introduction)
 - [How it works](#how-it-works)
   - [Overall](#overall)
