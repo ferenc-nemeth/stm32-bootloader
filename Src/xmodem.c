@@ -19,6 +19,9 @@ static uint16_t xmodem_calc_crc(uint8_t *data, uint16_t length);
 static xmodem_status xmodem_handle_packet(uint8_t size);
 static xmodem_status xmodem_error_handler(uint8_t *error_number, uint8_t max_error_number);
 
+/* externs */
+extern void uart_clear_overrun_flag (void);
+
 /**
  * @brief   This function is the base of the Xmodem protocol.
  *          When we receive a header from UART, it decides what action it shall take.
@@ -102,6 +105,9 @@ void xmodem_receive(void)
         }
         break;
     }
+
+    /*Prevent an overrun error after stop/cancel in the middle of a pack transference*/
+    uart_clear_overrun_flag();
   }
 }
 

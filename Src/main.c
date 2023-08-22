@@ -236,6 +236,10 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void uart_clear_overrun_flag (void){
+	huart1.Instance->ICR |= (1 << 3);
+}
+
 /* USER CODE END 4 */
 
 /**
